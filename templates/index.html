@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+    <title>Catering Provecho</title>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Catering Elegante" class="logo">
+        </div>
+    </header>
+    <div class="circle">
+        <i class="fas fa-headset"></i>
+    </div> 
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>¡Aviso importante!<br>Esta página es solo una demostración del funcionamiento del chatbot.</p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const body = document.querySelector('body');
+            const chatContainer = document.getElementById('chat-container');
+            const infoModal = document.getElementById('infoModal');
+            const closeButton = document.querySelector('.close');
+            const chatButton = document.querySelector('.circle');
+
+            infoModal.style.display = 'block';
+
+            closeButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                infoModal.style.display = 'none';
+            });
+
+            body.addEventListener('click', function (event) {
+                if (!chatContainer.contains(event.target) && event.target !== chatButton) {
+                    infoModal.style.display = 'block';
+                    setTimeout(function () {
+                        infoModal.style.display = 'none';
+                    }, 5000);
+                }
+            });
+        });
+    </script>
+    <div id="chat-container" class="chat-container">
+        <div id="chat-header" class="chat-header">
+            <h3>Chat en línea</h3>
+            <button id="close-chat" class="close-chat">&times;</button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Aquí puedes agregar mensajes del chat -->
+        </div>
+        <div id="chat-input" class="chat-input">
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Escribe un mensaje...">
+                <button type="submit" id="send-message" class="send-message">Enviar</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageForm = document.getElementById('message-form');
+            const messageInput = document.getElementById('message-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const circleIcon = document.querySelector('.circle');
+            const chatContainer = document.getElementById('chat-container');
+            const closeChatBtn = document.getElementById('close-chat');
+            let chatStarted = false;
+
+            function initializeChat() {
+                sendMessage('');
+                chatStarted = true;
+                chatContainer.style.display = 'block';
+            }
+
+            circleIcon.addEventListener('click', () => {
+                if (!chatStarted) {
+                    initializeChat();
+                } else {
+                    chatContainer.style.display = 'block';
+                }
+            });
+
+            closeChatBtn.addEventListener('click', () => {
+                chatContainer.style.display = 'none';
+                resetChat();
+            });
+
+            messageForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const userMessage = messageInput.value;
+                displayMessage(userMessage, 'user');
+                sendMessage(userMessage);
+                messageInput.value = '';
+            });
+
+            function resetChat() {
+                chatMessages.innerHTML = '';
+                fetch('/reset_chat', {
+                    method: 'POST',
+                    body: new URLSearchParams(),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                chatStarted = false;
+            }
+
+            function sendMessage(message) {
+                fetch('/send_message', {
+                    method: 'POST',
+                    body: new URLSearchParams({ 'message': message }),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (chatStarted) {
+                        displayMessage(data.message, 'chatbot');
+                    }
+                });
+            }
+
+            function displayMessage(message, sender) {
+                const messageElement = document.createElement('div');
+                const senderClass = sender === 'user' ? 'user-message' : 'chatbot-message';
+                messageElement.classList.add(senderClass);
+                messageElement.innerText = message;
+                chatMessages.appendChild(messageElement);
+            }
+        });
+    </script>
+    <section class="hero">
+        <div class="container">
+            <h2>Deliciosos Sabores para Cualquier Ocasión</h2>
+            <p>Ofrecemos servicios de catering personalizados para eventos corporativos, bodas, y mucho más.</p>
+            <a href="#contacto" class="cta-button">¡Solicita tu Cotización!</a>
+        </div>
+    </section> 
+    <section class="features">
+        <div class="container">
+            <div class="feature">
+                <img src="{{ url_for('static', filename='img/boda.jpg') }}" alt="Icono Bodas">
+                <h3>Bodas Inolvidables</h3>
+                <p>Creamos experiencias gastronómicas excepcionales que complementan la belleza de tu día especial.</p>
+            </div>
+            <div class="feature">
+                <img src="{{ url_for('static', filename='img/corporativo.jpg') }}" alt="Icono Eventos Corporativos">
+                <h3>Eventos Corporativos</h3>
+                <p>Impresiona a tus clientes y colegas con nuestras opciones de catering para reuniones y conferencias.</p>
+            </div>
+            <div class="feature">
+                <img src="{{ url_for('static', filename='img/fiestas.jpg') }}" alt="Icono Celebraciones Privadas">
+                <h3>Celebraciones Privadas</h3>
+                <p>Desde fiestas de cumpleaños hasta cenas íntimas, hacemos que cada evento sea memorable.</p>
+            </div>
+        </div>
+    </section>
+    <section id="contacto" class="contact">
+        <div class="container">
+            <h2>Contacto</h2>
+            <p>¿Listo para planificar tu próximo evento? Contáctanos para obtener más información.</p>
+            <form>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" required>
+                <button type="submit" class="cta-button">Enviar Mensaje</button>
+            </form>
+        </div>
+    </section>
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 mariart-dev</p>
+        </div>
+    </footer>
+</body>
+<script src="https://kit.fontawesome.com/9e2cc8fb14.js" crossorigin="anonymous"></script>
+</html>

@@ -310,3 +310,16 @@ footer {
         width: 90%;
     }
 }
+
+footer i {
+    font-size: 15px;
+    color: rgb(139, 139, 139);
+}
+
+footer p {
+    color: rgb(139, 139, 139);
+}
+
+footer i:hover {
+    font-size: 25px;
+}
